@@ -134,7 +134,7 @@ class Order(models.Model):
         max_length=50,
         db_index=True,
     )
-    phone_number = PhoneNumberField(
+    phonenumber = PhoneNumberField(
         'Телефон',
         region='RU',
         db_index=True,
@@ -165,7 +165,7 @@ class OrderItem(models.Model):
         related_name='items',
         verbose_name='Продукт',
     )
-    product_amount = models.IntegerField(
+    quantity = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(10)],
         verbose_name='Количество',
     )
