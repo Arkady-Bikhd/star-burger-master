@@ -63,25 +63,50 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
+    errormessage = ''
     order_description = request.data
-    order_products = order_description['products']
-    firstname = order_description['firstname']
-    lastname = order_description['lastname']
-    phone_number = order_description['phonenumber']
-    address = order_description['address']
-    order = Order.objects.create(
-        firstname=firstname,
-        lastname=lastname,
-        phone_number=phone_number,
-        address=address
-    )
-    for order_product in order_products:
-        product_id = order_product['product']
-        product = Product.objects.get(id=product_id)
-        OrderItem.objects.create(
-            order=order,
-            product=product,
-            product_amount=order_product['quantity']
-        )
-    print(order_description)
-    return Response({})
+    try:
+        order_products = order_description['products']
+        firstname = order_description['firstname']
+        lastname = order_description['lastname']
+        phone_number = order_description['phonenumber']
+        address = order_description['address']
+        check, errormessage = check_order_products(order_products)
+        if check:
+            order = Order.objects.create(
+                firstname=firstname,
+                lastname=lastname,
+                phone_number=phone_number,
+                address=address
+            )        
+            for order_product in order_products:
+                product_id = order_product['product']
+                product = Product.objects.get(id=product_id)
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    product_amount=order_product['quantity']
+            )
+    except KeyError:
+        errormessage = 'Продуктов нет. products: Обязательное поле.'    
+    return Response({
+        errormessage,
+    })
+
+
+def check_order_products(order_products):
+    errormessage = ''
+    check = True
+    if order_products == None:
+        check = False
+        errormessage = 'Продукты — это null. products: Это поле не может быть пустым.'
+        return check, errormessage 
+    elif not isinstance(order_products, list):
+        check = False
+        errormessage = 'Продукты — это не список, а строка.products: Ожидался list со значениями, но был получен "str".'
+        return check, errormessage
+    elif len(order_products) == 0:
+        check = False
+        errormessage = 'Продукты — пустой список. products: Этот список не может быть пустым.'
+        return check, errormessage     
+    
