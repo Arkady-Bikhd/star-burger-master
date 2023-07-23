@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.serializers import ModelSerializer, ValidationError
+from rest_framework.serializers import ModelSerializer
 
 from .models import Order, OrderItem, Product
 
@@ -24,6 +24,7 @@ class OrderSerializer(ModelSerializer):
     products = OrderItemSerializer(
         many=True,
         allow_empty=False,
+        write_only=True,
     )
 
     class Meta:
@@ -101,5 +102,8 @@ def register_order(request):
     )
     order_products = serializer.validated_data['products']
     products = [OrderItem(order=order, **fields) for fields in order_products]
-    OrderItem.objects.bulk_create(products)   
-    return Response({})
+    OrderItem.objects.bulk_create(products)
+    order_serializer = OrderSerializer(order)     
+    return Response(
+        order_serializer.data,        
+    )
