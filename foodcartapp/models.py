@@ -1,5 +1,6 @@
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import F
 from phonenumber_field.modelfields import PhoneNumberField
 
 
@@ -146,11 +147,22 @@ class Order(models.Model):
 
     class Meta:
         verbose_name = 'Заказ'
-        verbose_name_plural = 'Заказы'        
+        verbose_name_plural = 'Заказы'
 
     def __str__(self):
         return f'{self.lastname} {self.firstname}, {self.address}'
-    
+
+
+class OrderQuerySet(models.QuerySet):
+    def calculate_order_value(self):        
+        products_value = self.annotate(
+            product_value=F('product__price') * F('quantity')
+        )
+        order_value = 0
+        for product_value in products_value:
+            order_value += product_value.product_value
+        return order_value
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(
@@ -169,3 +181,5 @@ class OrderItem(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(10)],
         verbose_name='Количество',
     )
+
+    object = OrderQuerySet.as_manager()

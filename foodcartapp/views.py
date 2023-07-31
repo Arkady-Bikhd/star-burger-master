@@ -93,7 +93,7 @@ def product_list_api(request):
 @api_view(['POST'])
 def register_order(request):    
     serializer = OrderSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)    
+    serializer.is_valid(raise_exception=True)         
     order = Order.objects.create(
         firstname=serializer.validated_data['firstname'],
         lastname=serializer.validated_data['lastname'],
