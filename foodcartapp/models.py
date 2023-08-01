@@ -156,7 +156,7 @@ class Order(models.Model):
 class OrderQuerySet(models.QuerySet):
     def calculate_order_value(self):        
         products_value = self.annotate(
-            product_value=F('product__price') * F('quantity')
+            product_value=F('price') * F('quantity')
         )
         order_value = 0
         for product_value in products_value:
@@ -182,7 +182,7 @@ class OrderItem(models.Model):
         verbose_name='Количество',
     )
     price = models.DecimalField(
-        'цена',
+        'Цена',
         max_digits=8,
         decimal_places=2,
         validators=[MinValueValidator(0)]
