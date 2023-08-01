@@ -95,7 +95,7 @@ def view_orders(request):
     order_items = list()
     orders = list(Order.objects.all())
     for order in orders:
-        order_value = OrderItem.object.filter(order=order.id).calculate_order_value()
+        order_value = OrderItem.objects.filter(order=order.id).calculate_order_value()
         order_item = {
             'id': order.id,
             'firstname': order.firstname,
