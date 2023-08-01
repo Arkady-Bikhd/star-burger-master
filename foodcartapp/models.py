@@ -181,5 +181,11 @@ class OrderItem(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(10)],
         verbose_name='Количество',
     )
+    price = models.DecimalField(
+        'цена',
+        max_digits=8,
+        decimal_places=2,
+        validators=[MinValueValidator(0)]
+    )
 
-    object = OrderQuerySet.as_manager()
+    objects = OrderQuerySet.as_manager()
