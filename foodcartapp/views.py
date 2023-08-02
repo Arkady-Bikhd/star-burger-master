@@ -101,8 +101,7 @@ def register_order(request):
         phonenumber=serializer.validated_data['phonenumber'],
         address=serializer.validated_data['address']
     )
-    order_products = serializer.validated_data['products']
-    0/0
+    order_products = serializer.validated_data['products']    
     OrderItem.objects.bulk_create([
         OrderItem(
         order=order,
