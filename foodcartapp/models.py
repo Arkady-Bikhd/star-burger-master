@@ -2,6 +2,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F
 from phonenumber_field.modelfields import PhoneNumberField
+from django.utils import timezone
 
 
 class Restaurant(models.Model):
@@ -158,6 +159,25 @@ class Order(models.Model):
     comment = models.TextField(
         'Комментарий',
         blank=True,
+    )
+    registrated_at = models.DateTimeField(
+        'Зарегистрирован:',
+        default=timezone.now,
+        db_index=True,
+        null=True,
+        blank=True,
+    )
+    called_at = models.DateTimeField(
+        'Сделан звонок:',
+        blank=True,
+        db_index=True,
+        null=True,
+    )
+    delivered_at = models.DateTimeField(
+        'Доставлено:',
+        blank=True,
+        db_index=True,
+        null=True,
     )
 
     class Meta:
