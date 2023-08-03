@@ -93,12 +93,13 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     order_items = list()
-    orders = list(Order.objects.all())
+    orders = list(Order.objects.filter(status='Н'))
     for order in orders:
         order_value = OrderItem.objects.filter(order=order.id).calculate_order_value()
         order_item = {
             'id': order.id,
             'firstname': order.firstname,
+            'status': order.get_status_display(),
             'lastname': order.lastname,
             'phonenumber': order.phonenumber,
             'address': order.address,
