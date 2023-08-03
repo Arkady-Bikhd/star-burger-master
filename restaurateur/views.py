@@ -100,10 +100,12 @@ def view_orders(request):
             'id': order.id,
             'firstname': order.firstname,
             'status': order.get_status_display(),
+            'payment_method': order.get_payment_method_display(),
             'lastname': order.lastname,
             'phonenumber': order.phonenumber,
             'address': order.address,
             'order_value': order_value,
+            'comment': order.comment,
         }
         order_items.append(order_item)    
     return render(request, template_name='order_items.html', context={

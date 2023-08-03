@@ -131,6 +131,10 @@ class Order(models.Model):
         ('З', 'Завершённый'),
         ('Н','Необработанный'),
     )
+    PAYMENT_METHOD = (
+        ('Э', 'Электронно'),
+        ('Н', 'Нальчностью'),
+    )
     firstname = models.CharField(
         'Имя',
         max_length=30,
@@ -177,6 +181,13 @@ class Order(models.Model):
         'Доставлено:',
         blank=True,
         db_index=True,
+        null=True,
+    )
+    payment_method = models.CharField(
+        'Способ оплаты',
+        max_length=2,
+        db_index=True,
+        choices=PAYMENT_METHOD,
         null=True,
     )
 

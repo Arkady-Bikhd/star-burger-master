@@ -15,22 +15,26 @@
     <tr>
       <th>ID заказа</th>
       <th>Статус</th>
+      <th>Способ оплаты</th>
       <th>Цена</th>
       <th>Клиент</th>
       <th>Телефон</th>
       <th>Адрес доставки</th>
       <th>Админ редактирование</th>
+      <th>Комментарий</th>
     </tr>
 
     {% for item in order_items %}
       <tr>
         <td>{{item.id}}</td>
         <th>{{item.status}}</th>
+        <th>{{item.payment_method}}</th>
         <td>{{item.order_value}} руб.</td>
         <td>{{item.firstname}} {{item.lastname}}</td>
         <td>{{item.phonenumber}}</td>
-        <td>{{item.address}}</td>
+        <td>{{item.address}}</td>        
         <td><a href='{% url "admin:foodcartapp_order_change" object_id=item.id %}?next={{request.get_full_path|urlencode}}'>Редактировать</a></td>
+        <th>{{item.comment}}</th>
       </tr>
     {% endfor %}
    </table>
