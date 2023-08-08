@@ -130,6 +130,7 @@ class Order(models.Model):
     ORDER_STATUS = (
         ('З', 'Завершённый'),
         ('Н','Необработанный'),
+        ('Г', 'Готовится')
     )
     PAYMENT_METHOD = (
         ('Э', 'Электронно'),
@@ -190,6 +191,14 @@ class Order(models.Model):
         choices=PAYMENT_METHOD,
         null=True,
     )
+    restaurant = models.ForeignKey(
+        Restaurant,
+        on_delete=models.CASCADE,
+        related_name='restaurant',
+        verbose_name='Ресторан',
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         verbose_name = 'Заказ'
@@ -214,15 +223,15 @@ class OrderItem(models.Model):
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
-        related_name='items',
+        related_name='order_items',
         verbose_name='Заказ',
     )
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='items',
+        related_name='order_products',
         verbose_name='Продукт',
-    )
+    )    
     quantity = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(10)],
         verbose_name='Количество',

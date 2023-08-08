@@ -6,9 +6,9 @@ from django.contrib.auth.decorators import user_passes_test
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
+from django.db.models import Q
 
-
-from foodcartapp.models import Product, Restaurant, Order, OrderItem
+from foodcartapp.models import Product, Restaurant, Order, OrderItem, RestaurantMenuItem
 
 
 class Login(forms.Form):
@@ -93,8 +93,9 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     order_items = list()
-    orders = list(Order.objects.filter(status='Н'))
+    orders = list(Order.objects.filter(Q(status='Н') | Q(status='Г')))
     for order in orders:
+        availabile_restaurants = get_availabile_restaurants(order)
         order_value = OrderItem.objects.filter(order=order.id).calculate_order_value()
         order_item = {
             'id': order.id,
@@ -106,8 +107,23 @@ def view_orders(request):
             'address': order.address,
             'order_value': order_value,
             'comment': order.comment,
+            'restaurant': order.restaurant,
+            'availabile_restaurants': availabile_restaurants,
         }
         order_items.append(order_item)    
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,        
     })
+
+
+def get_availabile_restaurants(order):
+    order_items = order.order_items.all()
+    restaurant_menu = RestaurantMenuItem.objects.prefetch_related('restaurant')
+    restaurants_for_product = list()
+    for order_item in order_items:        
+        restaurants = [restaurant.restaurant for restaurant in restaurant_menu.filter(product=order_item.product)]
+        restaurants_for_product.append(restaurants)
+    availabile_restaurants = set(restaurants_for_product[0])
+    for restuarant in restaurants_for_product:
+        availabile_restaurants = availabile_restaurants.intersection(restuarant)    
+    return list(availabile_restaurants)
