@@ -1,3 +1,4 @@
+import requests
 from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
@@ -7,6 +8,9 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from django.db.models import Q
+from django.conf import settings # YANDEX_API_KEY
+
+from geopy import distance
 
 from foodcartapp.models import Product, Restaurant, Order, OrderItem, RestaurantMenuItem
 
@@ -93,24 +97,14 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     order_items = list()
-    orders = list(Order.objects.filter(Q(status='Н') | Q(status='Г')))
+    orders = list(Order.objects.filter(status='Н'))
     for order in orders:
-        availabile_restaurants = get_availabile_restaurants(order)
-        order_value = OrderItem.objects.filter(order=order.id).calculate_order_value()
-        order_item = {
-            'id': order.id,
-            'firstname': order.firstname,
-            'status': order.get_status_display(),
-            'payment_method': order.get_payment_method_display(),
-            'lastname': order.lastname,
-            'phonenumber': order.phonenumber,
-            'address': order.address,
-            'order_value': order_value,
-            'comment': order.comment,
-            'restaurant': order.restaurant,
-            'availabile_restaurants': availabile_restaurants,
-        }
-        order_items.append(order_item)    
+        order_item = fill_order_items(order,  order.status)
+        order_items.append(order_item)
+    orders = list(Order.objects.filter(status='Г'))
+    for order in orders:
+        order_item = fill_order_items(order,  order.status)
+        order_items.append(order_item)       
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,        
     })
@@ -126,4 +120,65 @@ def get_availabile_restaurants(order):
     availabile_restaurants = set(restaurants_for_product[0])
     for restuarant in restaurants_for_product:
         availabile_restaurants = availabile_restaurants.intersection(restuarant)    
-    return list(availabile_restaurants)
+    availabile_restaurants = calculate_distance(list(availabile_restaurants), order.address)
+    return availabile_restaurants
+
+
+def fetch_coordinates(apikey, address):
+    base_url = "https://geocode-maps.yandex.ru/1.x"
+    response = requests.get(base_url, params={
+        "geocode": address,
+        "apikey": apikey,
+        "format": "json",
+    })
+    response.raise_for_status()
+    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
+
+    if not found_places:
+        return None
+
+    most_relevant = found_places[0]
+    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+    return lat, lon
+
+
+def calculate_distance(availabile_restaurants, address):
+    availabile_restaurants_coords = list()
+    for restaurant in availabile_restaurants:
+        restaurant_address_coords = fetch_coordinates(settings.YANDEX_API_KEY, restaurant.address)
+        order_address_coords = fetch_coordinates(settings.YANDEX_API_KEY, address)
+        if restaurant_address_coords and order_address_coords:
+            coord_distance = list(
+                (restaurant.name, round(distance.distance(
+                restaurant_address_coords,
+                order_address_coords).km, 2))
+            )            
+        else:
+            coord_distance = list(
+                (restaurant.name, None)
+            )
+        availabile_restaurants_coords.append(coord_distance)
+    availabile_restaurants_coords.sort(key=lambda restaurant: restaurant[1])
+    availabile_restaurants = [{ 'name': restaurant[0],  'distance': restaurant[1]} for restaurant in availabile_restaurants_coords]    
+    return availabile_restaurants
+
+
+def fill_order_items(order, order_status):
+    order_value = OrderItem.objects.filter(order=order.id).calculate_order_value()
+    availabile_restaurants = None
+    if order_status=='Н':        
+        availabile_restaurants = get_availabile_restaurants(order)    
+    order_item = {
+            'id': order.id,
+            'firstname': order.firstname,
+            'status': order.get_status_display(),
+            'payment_method': order.get_payment_method_display(),
+            'lastname': order.lastname,
+            'phonenumber': order.phonenumber,
+            'address': order.address,
+            'order_value': order_value,
+            'comment': order.comment,
+            'restaurant': order.restaurant,
+            'availabile_restaurants': availabile_restaurants,
+        }
+    return order_item

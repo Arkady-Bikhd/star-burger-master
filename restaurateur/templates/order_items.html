@@ -42,7 +42,11 @@
               <details>
                 <summary>Может быть приготовлен ресторанами:</summary>
                   {% for restaurant in item.availabile_restaurants %}
-                    <h7><span class="badge badge-info">{{restaurant.name}}</span></h7>
+                    {% if restaurant.distance %}
+                      <h7><span class="badge badge-info">{{restaurant.name}} - {{restaurant.distance}} км </span></h7>
+                    {% else %}
+                      <h7><span class="badge badge-info">{{restaurant.name}} - Ошибка определения координат </span></h7>
+                    {% endif %}
                   {% endfor %}
               </details> 
             </td>
