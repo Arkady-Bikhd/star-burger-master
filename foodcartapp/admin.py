@@ -12,6 +12,7 @@ from .models import Restaurant
 from .models import RestaurantMenuItem
 from .models import Order
 from .models import OrderItem
+from distances.models import Place
 
 
 class RestaurantMenuItemInline(admin.TabularInline):
@@ -130,11 +131,12 @@ class OrderAdmin(admin.ModelAdmin):
             return HttpResponseRedirect(url)
         else:
             return res
-    # list_display = [
-    #    'lastname',
-    #     'phone_number',
-    #     'address', 
-    # ]
+   
     inlines = [
         OrderItemInline
     ]
+
+
+@admin.register(Place)
+class PlaceAdmin(admin.ModelAdmin):
+    pass

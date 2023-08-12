@@ -1,4 +1,6 @@
 import requests
+
+from datetime import date
 from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
@@ -13,6 +15,7 @@ from django.conf import settings # YANDEX_API_KEY
 from geopy import distance
 
 from foodcartapp.models import Product, Restaurant, Order, OrderItem, RestaurantMenuItem
+from distances.models import Place
 
 
 class Login(forms.Form):
@@ -145,8 +148,8 @@ def fetch_coordinates(apikey, address):
 def calculate_distance(availabile_restaurants, address):
     availabile_restaurants_coords = list()
     for restaurant in availabile_restaurants:
-        restaurant_address_coords = fetch_coordinates(settings.YANDEX_API_KEY, restaurant.address)
-        order_address_coords = fetch_coordinates(settings.YANDEX_API_KEY, address)
+        restaurant_address_coords = get_place_coords(restaurant.address)
+        order_address_coords = get_place_coords(address)
         if restaurant_address_coords and order_address_coords:
             coord_distance = list(
                 (restaurant.name, round(distance.distance(
@@ -182,3 +185,16 @@ def fill_order_items(order, order_status):
             'availabile_restaurants': availabile_restaurants,
         }
     return order_item
+
+
+def get_place_coords(address):
+    place, created = Place.objects.get_or_create(address=address)    
+    if not created:
+        return place.latitude, place.longitude
+    place_coords = fetch_coordinates(settings.YANDEX_API_KEY, address)
+    if not place_coords:
+        return False
+    place.latitude, place.longitude = place_coords
+    place.updated_at = date.today()
+    place.save()
+    return place.latitude, place.longitude
