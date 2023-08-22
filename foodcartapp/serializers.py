@@ -10,7 +10,7 @@ class OrderItemSerializer(ModelSerializer):
             'quantity',
         ]
 
-
+    
 class OrderSerializer(ModelSerializer):
     products = OrderItemSerializer(
         many=True,
@@ -27,4 +27,22 @@ class OrderSerializer(ModelSerializer):
             'phonenumber',
             'address',
         ]
-        
+    
+    def create(self, validated_data):
+        order = Order.objects.create(
+            firstname=validated_data['firstname'],
+            lastname=validated_data['lastname'],
+            phonenumber=validated_data['phonenumber'],
+            address=validated_data['address']
+        )
+        order_products = validated_data['products']    
+        OrderItem.objects.bulk_create([
+            OrderItem(
+                order=order,
+                product=order_product.get('product'),
+                quantity=order_product.get('quantity'),
+                price=order_product.get('product').price,
+            ) 
+            for order_product in order_products]
+        )
+        return order
