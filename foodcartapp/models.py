@@ -134,7 +134,7 @@ class Order(models.Model):
     )
     PAYMENT_METHOD = (
         ('Э', 'Электронно'),
-        ('Н', 'Нальчностью'),
+        ('Н', 'Наличностью'),
     )
     firstname = models.CharField(
         'Имя',
@@ -165,7 +165,7 @@ class Order(models.Model):
         'Комментарий',
         blank=True,
     )
-    registrated_at = models.DateTimeField(
+    registered_at = models.DateTimeField(
         'Зарегистрирован:',
         default=timezone.now,
         db_index=True,
