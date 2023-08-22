@@ -6,37 +6,11 @@ from django.shortcuts import get_object_or_404
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.serializers import ModelSerializer
+
 from django.db import transaction
 
 from .models import Order, OrderItem, Product
-
-
-class OrderItemSerializer(ModelSerializer):
-    class Meta:
-        model = OrderItem
-        fields = [
-            'product',
-            'quantity',
-        ]
-
-
-class OrderSerializer(ModelSerializer):
-    products = OrderItemSerializer(
-        many=True,
-        allow_empty=False,
-        write_only=True,
-    )
-
-    class Meta:
-        model = Order
-        fields = [
-            'products',
-            'firstname',
-            'lastname',
-            'phonenumber',
-            'address',
-        ]
+from .serializers import OrderSerializer
 
 
 def banners_list_api(request):
