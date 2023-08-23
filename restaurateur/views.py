@@ -127,7 +127,7 @@ def get_availabile_restaurants(order):
     return availabile_restaurants
 
 
-def fetch_coordinates(apikey, address):
+def fetch_coordinates(apikey, address):    
     base_url = "https://geocode-maps.yandex.ru/1.x"
     response = requests.get(base_url, params={
         "geocode": address,
@@ -158,8 +158,8 @@ def calculate_distance(availabile_restaurants, address):
             )            
         else:
             coord_distance = list(
-                (restaurant.name, None)
-            )
+                (restaurant.name, 0)
+            )            
         availabile_restaurants_coords.append(coord_distance)
     availabile_restaurants_coords.sort(key=lambda restaurant: restaurant[1])
     availabile_restaurants = [{ 'name': restaurant[0],  'distance': restaurant[1]} for restaurant in availabile_restaurants_coords]    
@@ -191,8 +191,9 @@ def get_place_coords(address):
     place, created = Place.objects.get_or_create(address=address)    
     if not created:
         return place.latitude, place.longitude
-    place_coords = fetch_coordinates(settings.YANDEX_API_KEY, address)
+    place_coords = fetch_coordinates(settings.YANDEX_API_KEY, address)    
     if not place_coords:
+        Place.objects.filter(address=address).delete()
         return False
     place.latitude, place.longitude = place_coords
     place.updated_at = date.today()
