@@ -99,7 +99,7 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    order_items = list()
+    order_items = list()    
     orders = list(Order.objects.filter(status='Н'))
     for order in orders:
         order_item = fill_order_items(order,  order.status)
