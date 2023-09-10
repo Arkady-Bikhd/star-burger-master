@@ -3,6 +3,9 @@ import os
 import dj_database_url
 
 from environs import Env
+import _locale
+
+_locale._getdefaultlocale = (lambda *args: ['ru_Ru', 'utf8'])
 
 
 env = Env()
@@ -17,6 +20,7 @@ DEBUG = env.bool('DEBUG', True)
 YANDEX_API_KEY = env('YANDEX_API_KEY')
 ROLLBAR_ACCESS_TOKEN = env('ROLLBAR_ACCESS_TOKEN')
 ENVIRONMENT = env('ENVIRONMENT')
+POSTGRES_URL = env('POSTGRES_URL')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
 
@@ -93,9 +97,9 @@ WSGI_APPLICATION = 'star_burger.wsgi.application'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-DATABASES = {
+DATABASES = {    
     'default': dj_database_url.config(
-        default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
+        default=POSTGRES_URL,
     )
 }
 
