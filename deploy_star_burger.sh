@@ -4,8 +4,7 @@
 set -e
 
 echo $(git pull git@github.com:Arkady-Bikhd/star-burger-master.git);
-echo $(apt-get install python3.10-venv);
-echo $(/usr/bin/env python3 -m venv venv);
+
 source "./venv/bin/activate";
 echo $(/usr/bin/env pip3 install -r requirements.txt);
 npm ci --dev
@@ -24,4 +23,4 @@ curl -H "X-Rollbar-Access-Token: $ROLLBAR_ACCESS_TOKEN" \
      -d '{"environment": "production","revision": "'$last_commit_hash'","rollbar_name": "capark74","local_username": "root","status": "succeeded"}' \
      -s >/dev/null
 
-echo 'Деплой успешно выполнен';
+echo 'Г„ГҐГЇГ«Г®Г© ГіГ±ГЇГҐГёГ­Г® ГўГ»ГЇГ®Г«Г­ГҐГ­';
