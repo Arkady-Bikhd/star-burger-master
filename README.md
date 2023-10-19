@@ -156,9 +156,24 @@ Parcel будет следить за файлами в каталоге `bundle
 
 - `DEBUG` — дебаг-режим. Поставьте `False`.
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
-- YANDEX_API_KEY - ключ API разработчика Яндекса
+- `YANDEX_API_KEY` - ключ API разработчика Яндекса
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 
+Для просмотра и фиксации ошибок при работе сайта - необходимо зарегестрироваться на сайте [rollbar](https://rollbar.com/)
+Создать проект и записать в файле `.env` project_access_token. Вы можете этого не делать,
+если вам не нужно получать информацию об ошибках в роллбаре.
+Тогда укажите в .env `ROLLBAR=False`. Если же нужны записи ошибок, то в .env необходимо
+прописать `ROLLBAR=True` и указать следующие 3 переменные окружения:
+```sh
+ROLLBAR_ACCESS_TOKEN='521c.....'
+```
+
+Создайте базу данных в [PostgreSQL](https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-14-04)
+и получите данные `USER`, `PASSWORD`, имя базы данных `NAME` и внесите эти данные
+в виде URL в `.env`
+```pycon
+POSTGRES_URL='postgres://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]'
+```
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
