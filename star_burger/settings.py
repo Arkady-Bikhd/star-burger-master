@@ -23,7 +23,8 @@ ROLLBAR_ACCESS_TOKEN = env('ROLLBAR_ACCESS_TOKEN')
 ENVIRONMENT = env('ENVIRONMENT')
 POSTGRES_URL = env('POSTGRES_URL')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost', '45.8.251.203', 'inftechntransport.ru', 
+'www.inftechntransport.ru'])
 
 INSTALLED_APPS = [
     'foodcartapp.apps.FoodcartappConfig',
