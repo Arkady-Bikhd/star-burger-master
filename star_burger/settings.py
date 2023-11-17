@@ -39,26 +39,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'distances',
 ]
-if ROLLBAR:
-    MIDDLEWARE = [
-        'django.middleware.security.SecurityMiddleware',
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-        'rollbar.contrib.django.middleware.RollbarNotifierMiddlewareExcluding404',
-    ]
-    ROLLBAR = {
-        'access_token': ROLLBAR_ACCESS_TOKEN,
-        'environment': ENVIRONMENT,
-        'code_version': '1.0',
-        'root': BASE_DIR,
-    }
-else:
-    MIDDLEWARE = [
+MIDDLEWARE = [
         'django.middleware.security.SecurityMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.common.CommonMiddleware',
@@ -67,7 +48,18 @@ else:
         'django.contrib.messages.middleware.MessageMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
         'debug_toolbar.middleware.DebugToolbarMiddleware',        
-    ]    
+    ]
+if ROLLBAR:
+    MIDDLEWARE.append(
+        'rollbar.contrib.django.middleware.RollbarNotifierMiddlewareExcluding404'
+    )       
+    
+    ROLLBAR = {
+        'access_token': ROLLBAR_ACCESS_TOKEN,
+        'environment': ENVIRONMENT,
+        'code_version': '1.0',
+        'root': BASE_DIR,
+    }     
 
 ROOT_URLCONF = 'star_burger.urls'
 
