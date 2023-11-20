@@ -23,4 +23,4 @@ curl -H "X-Rollbar-Access-Token: $ROLLBAR_ACCESS_TOKEN" \
      -d '{"environment": "production","revision": "'$last_commit_hash'","rollbar_name": "capark74","local_username": "root","status": "succeeded"}' \
      -s >/dev/null
 
-echo 'Деплой успешно выполнен';
+echo 'the deployment was successfully completed';
