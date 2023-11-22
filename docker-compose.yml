@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+  pgdb:
+    image: postgres
+    environment:
+      - POSTGRES_DB=starburge
+      - POSTGRES_USER=capark
+      - POSTGRES_PASSWORD=197408
+    container_name: pgdb
+    volumes:
+      - .:/var/lib/postgresql/data1
+    ports:
+      - '5432:5432'
+
+  backend:
+    build: .
+    command: >
+      /bin/sh -c "python3 manage.py makemigrations --force-color --no-input -v 3
+      && python3 manage.py migrate --force-color -v 3
+      && python3 manage.py collectstatic --noinput
+      && python3 -m gunicorn -b 0.0.0.0:8080 star_burger.wsgi --reload"
+    environment:
+      SECRET_KEY: django-insecure-0if40nf4nf93n4
+      DJANGO_SUPERUSER_USERNAME: admin
+      DJANGO_SUPERUSER_PASSWORD: admin
+      DJANGO_SUPERUSER_EMAIL: admin@example.com
+      YANDEX_API_KEY: 571a23ae-3645-4b7b-846e-1f04a39cbe2d
+      ALLOWED_HOSTS: 45.8.251.203,127.0.0.1:8080,127.0.0.1,localhost,starburger
+      DEBUG: 'False'
+      ROLLBAR: 'False'
+      DEV: 'False'
+      USER: 'capark'
+      ROLLBAR_ACCESS_TOKEN: 674387cfd3b0429fa009129ad9c8bc8a
+      POSTGRES_URL: postgres://capark:197408@localhost/starburger
+    expose:
+      - 8080
+    depends_on:
+      - pgdb
+      - nginx
+    links:
+      - nginx
+    volumes:
+      - collected_burger:/app/collected_static
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+    volumes:
+      - ./hosts:/etc/nginx/conf.d
+      - ./media:/burger/mediafiles
+      - collected_burger:/burger/collected_static
+    restart:
+      always
+
+volumes:
+  collected_burger:
